@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:block/crop",
+  "textures": {
+    "crop": "vanilla_mod:block/vanilla_stage4"
+  }
+}

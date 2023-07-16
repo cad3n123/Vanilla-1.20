@@ -1,8 +1,19 @@
-package net.caden.vanillamod;
+package net.caden.vanilla_mod;
 
 import com.mojang.logging.LogUtils;
+import net.caden.vanilla_mod.block.ModBlocks;
+import net.caden.vanilla_mod.item.ModCreativeModTabs;
+import net.caden.vanilla_mod.item.ModItems;
+import net.caden.vanilla_mod.loot.ModLootModifiers;
+import net.caden.vanilla_mod.potion.ModPotions;
+import net.caden.vanilla_mod.util.BetterBrewingRecipe;
+import net.minecraft.client.renderer.ItemBlockRenderTypes;
+import net.minecraft.client.renderer.RenderType;
+import net.minecraft.world.item.CreativeModeTabs;
+import net.minecraft.world.item.alchemy.Potions;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.common.brewing.BrewingRecipeRegistry;
 import net.minecraftforge.event.BuildCreativeModeTabContentsEvent;
 import net.minecraftforge.event.server.ServerStartingEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
@@ -19,11 +30,19 @@ public class VanillaMod
 {
     // Define mod id in a common place for everything to reference
     public static final String MOD_ID = "vanilla_mod";
-    // Directly reference a slf4j logger
     private static final Logger LOGGER = LogUtils.getLogger();
 
     public VanillaMod() {
         IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
+
+        ModCreativeModTabs.register(modEventBus);
+
+        ModItems.register(modEventBus);
+        ModBlocks.register(modEventBus);
+
+        ModLootModifiers.register(modEventBus);
+
+        ModPotions.register(modEventBus);
 
         modEventBus.addListener(this::commonSetup);
 
@@ -34,9 +53,10 @@ public class VanillaMod
     private void commonSetup(final FMLCommonSetupEvent event){
     }
 
-    // Add the example block item to the building blocks tab
     private void addCreative(BuildCreativeModeTabContentsEvent event) {
-
+        if(event.getTabKey() == CreativeModeTabs.INGREDIENTS) {
+            event.accept(ModItems.VANILLA_BEAN);
+        }
     }
 
     // You can use SubscribeEvent and let the Event Bus discover methods to call
@@ -50,6 +70,10 @@ public class VanillaMod
     {
         @SubscribeEvent
         public static void onClientSetup(FMLClientSetupEvent event) {
+            ItemBlockRenderTypes.setRenderLayer(ModBlocks.VANILLA_CROP.get(), RenderType.cutout());
+
+            BrewingRecipeRegistry.addRecipe(new BetterBrewingRecipe(Potions.WATER,
+                    ModItems.VANILLA_BEAN.get(), ModPotions.VANILLA_EXTRACT.get()));
         }
     }
 }
